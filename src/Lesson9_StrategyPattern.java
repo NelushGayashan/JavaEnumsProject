@@ -237,32 +237,32 @@ public class Lesson9_StrategyPattern {
             public double calculate(double weight, double distance) {
                 return 2.00 + (weight * 0.50) + (distance * 0.01);
             }
-            @Override public String name() { return "Standard Shipping"; }
+            @Override public String label() { return "Standard Shipping"; }
         },
         EXPRESS {
             @Override
             public double calculate(double weight, double distance) {
                 return 10.00 + (weight * 1.00) + (distance * 0.02);
             }
-            @Override public String name() { return "Express Shipping"; }
+            @Override public String label() { return "Express Shipping"; }
         },
         OVERNIGHT {
             @Override
             public double calculate(double weight, double distance) {
                 return 25.00 + (weight * 2.00) + (distance * 0.05);
             }
-            @Override public String name() { return "Overnight Shipping"; }
+            @Override public String label() { return "Overnight Shipping"; }
         },
         FREE {
             @Override
             public double calculate(double weight, double distance) {
-                return 0.00; // free for qualifying orders
+                return 0.00;
             }
-            @Override public String name() { return "Free Shipping"; }
+            @Override public String label() { return "Free Shipping"; }
         };
 
         public abstract double calculate(double weight, double distance);
-        public abstract String name();
+        public abstract String label();
     }
 
 
