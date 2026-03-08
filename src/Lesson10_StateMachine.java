@@ -1,45 +1,5 @@
-// ============================================================
-//  LESSON 10 — STATE MACHINE PATTERN
-// ============================================================
-//
-//  WHAT IS A STATE MACHINE?
-//  -------------------------
-//  A State Machine (or Finite State Machine / FSM) models an
-//  object that:
-//    1. Can be in exactly ONE state at a time
-//    2. Transitions from one state to another in response to events
-//    3. May perform actions when entering/exiting/transitioning states
-//
-//  Real-world examples:
-//    - Traffic light: RED → GREEN → YELLOW → RED
-//    - Order lifecycle: PLACED → CONFIRMED → SHIPPED → DELIVERED
-//    - TCP connection: CLOSED → LISTEN → SYN_RECEIVED → ESTABLISHED
-//    - Vending machine: IDLE → HAS_COIN → ITEM_SELECTED → DISPENSING
-//
-//  WHY ENUM FOR STATE MACHINES?
-//  ----------------------------
-//  ✅ The set of states is FIXED and KNOWN — perfect for enum
-//  ✅ Each state can define its OWN transitions and behavior
-//  ✅ Invalid states are impossible (type safety)
-//  ✅ Switch expressions on current state are exhaustive
-//  ✅ Self-contained: state knows what to do and where to go next
-//
-//  THE KEY INSIGHT:
-//  ----------------
-//  Instead of a state being just a label (like a String "RED"),
-//  the state KNOWS:
-//    - What actions to take while in this state
-//    - Where to go when an event occurs
-//    - What transitions are valid
-//
-// ============================================================
-
 public class Lesson10_StateMachine {
 
-    // --------------------------------------------------------
-    // EXAMPLE 1: Traffic Light — Simple Linear State Machine
-    // Each state defines where to go next and what to do.
-    // --------------------------------------------------------
     enum TrafficLight {
 
         RED {
@@ -67,11 +27,6 @@ public class Lesson10_StateMachine {
         public abstract String       emoji();
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 2: Order Lifecycle — State with Valid Transitions
-    // Not all states can transition to all others.
-    // --------------------------------------------------------
     enum OrderState {
 
         PLACED {
@@ -159,11 +114,6 @@ public class Lesson10_StateMachine {
         }
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 3: Vending Machine — Event-Driven State Machine
-    // The machine reacts to different user events.
-    // --------------------------------------------------------
     enum VendingState {
 
         IDLE {
@@ -239,11 +189,6 @@ public class Lesson10_StateMachine {
         public abstract VendingState refund();
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 4: Document Workflow
-    // A document goes through an editorial review pipeline.
-    // --------------------------------------------------------
     enum DocumentState {
 
         DRAFT {
@@ -306,10 +251,6 @@ public class Lesson10_StateMachine {
         }
     }
 
-
-    // --------------------------------------------------------
-    // Helper to print current state nicely
-    // --------------------------------------------------------
     static void printState(String machine, Object state) {
         System.out.println("  [" + machine + "] State: " + state);
     }
@@ -317,9 +258,6 @@ public class Lesson10_StateMachine {
 
     public static void main(String[] args) {
 
-        // --------------------------------------------------------
-        // Traffic Light
-        // --------------------------------------------------------
         System.out.println("=== Traffic Light State Machine ===");
         TrafficLight light = TrafficLight.RED;
 
@@ -329,10 +267,6 @@ public class Lesson10_StateMachine {
             light = light.next();
         }
 
-
-        // --------------------------------------------------------
-        // Order Lifecycle
-        // --------------------------------------------------------
         System.out.println("\n=== Order Lifecycle State Machine ===");
 
         OrderState order = OrderState.PLACED;
@@ -359,7 +293,6 @@ public class Lesson10_StateMachine {
         printState("Order", order);
         System.out.println("  → " + order.describe());
 
-        // Show a cancel flow
         System.out.println("\n--- Cancel Flow ---");
         OrderState cancelOrder = OrderState.PLACED;
         System.out.println("Start: " + cancelOrder);
@@ -369,9 +302,6 @@ public class Lesson10_StateMachine {
         System.out.println("After cancel: " + cancelOrder);
 
 
-        // --------------------------------------------------------
-        // Vending Machine
-        // --------------------------------------------------------
         System.out.println("\n=== Vending Machine State Machine ===");
 
         VendingState vm = VendingState.IDLE;
@@ -395,9 +325,6 @@ public class Lesson10_StateMachine {
         vm = vm.insertCoin();    // double insert
 
 
-        // --------------------------------------------------------
-        // Document Workflow
-        // --------------------------------------------------------
         System.out.println("\n=== Document Workflow State Machine ===");
 
         DocumentState doc = DocumentState.DRAFT;
@@ -433,28 +360,3 @@ public class Lesson10_StateMachine {
         System.out.println("\n🎉 All 10 lessons done! You now know Java Enums from basics to design patterns!");
     }
 }
-
-// ============================================================
-//  SUMMARY
-// ============================================================
-//  State Machine Pattern:
-//    - Each enum constant = one state
-//    - Abstract methods = events/transitions
-//    - Each constant implements transitions to other states
-//    - Invalid transitions: warn and return self (no state change)
-//
-//  Key benefits:
-//    - Impossible to be in an invalid state
-//    - Each state controls its own valid transitions
-//    - Adding a new state: add constant + implement all methods
-//    - Compiler enforces you handle all events in all states
-//
-//  Combines best of Lessons 4 (abstract methods) + 1 (constants)
-//
-//  Best for: workflows, protocols, UI state, game logic,
-//            order/document lifecycle, device control
-//
-//  COMPILE & RUN:
-//    javac Lesson10_StateMachine.java
-//    java  Lesson10_StateMachine
-// ============================================================

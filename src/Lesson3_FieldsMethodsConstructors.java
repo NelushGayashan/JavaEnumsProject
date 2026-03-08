@@ -1,37 +1,6 @@
-// ============================================================
-//  LESSON 3 — FIELDS, METHODS & CONSTRUCTORS
-// ============================================================
-//
-//  KEY INSIGHT: An enum is a FULL CLASS in Java.
-//
-//  Each enum constant is actually an INSTANCE of that class.
-//  That means every constant can carry its own:
-//    - Fields (data / state)
-//    - Methods (behavior)
-//    - A constructor (to initialize the fields)
-//
-//  This is a huge step up from Lesson 1 where constants
-//  were just names. Now they carry MEANINGFUL DATA.
-//
-//  RULES:
-//  ------
-//  1. The constructor is ALWAYS private (implicitly or explicitly).
-//     You cannot create enum instances yourself — Java does it.
-//  2. Fields should usually be final (constants should be immutable).
-//  3. You can have as many fields, methods, and constructors as needed.
-//  4. You can override toString() for nicer output.
-//
-// ============================================================
-
 public class Lesson3_FieldsMethodsConstructors {
 
-    // --------------------------------------------------------
-    // EXAMPLE 1: HTTP Status Codes
-    // Each status has a numeric code AND a text reason.
-    // --------------------------------------------------------
     enum HttpStatus {
-        // Syntax: CONSTANT_NAME(arg1, arg2, ...)
-        // These arguments go to the constructor below.
         OK(200, "OK"),
         CREATED(201, "Created"),
         NO_CONTENT(204, "No Content"),
@@ -42,33 +11,23 @@ public class Lesson3_FieldsMethodsConstructors {
         INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
         SERVICE_UNAVAILABLE(503, "Service Unavailable");
 
-        // Fields — final because HTTP codes never change
         private final int    code;
         private final String reason;
 
-        // Constructor — called once per constant when class loads
-        // Always private: you can write "private" or leave it out
         HttpStatus(int code, String reason) {
             this.code   = code;
             this.reason = reason;
         }
 
-        // Getters — standard access to fields
         public int    getCode()   { return code;   }
         public String getReason() { return reason; }
-
-        // Method: is this an error status?
         public boolean isError() {
             return code >= 400;
         }
-
-        // Method: is this a success status?
         public boolean isSuccess() {
             return code >= 200 && code < 300;
         }
 
-        // Static method: look up by code number
-        // Useful when you receive a raw integer (e.g., from an API)
         public static HttpStatus fromCode(int code) {
             for (HttpStatus s : values()) {
                 if (s.code == code) return s;
@@ -76,18 +35,12 @@ public class Lesson3_FieldsMethodsConstructors {
             throw new IllegalArgumentException("Unknown HTTP status code: " + code);
         }
 
-        // Override toString for cleaner output
         @Override
         public String toString() {
             return code + " " + reason;
         }
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 2: Coins
-    // Each coin has a fixed value in cents.
-    // --------------------------------------------------------
     enum Coin {
         PENNY(1),
         NICKEL(5),
@@ -104,22 +57,15 @@ public class Lesson3_FieldsMethodsConstructors {
 
         public int getCents() { return cents; }
 
-        // How much is N of these coins worth (in dollars)?
         public double valueOf(int count) {
             return (cents * count) / 100.0;
         }
 
-        // Dollar value of one coin
         public double toDollars() {
             return cents / 100.0;
         }
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 3: Planet (with multiple fields and methods)
-    // Each planet has mass and radius — we can compute gravity!
-    // --------------------------------------------------------
     enum Planet {
         MERCURY(3.303e+23, 2.4397e6),
         VENUS  (4.869e+24, 6.0518e6),
@@ -128,10 +74,10 @@ public class Lesson3_FieldsMethodsConstructors {
         JUPITER(1.9e+27,   7.1492e7),
         SATURN (5.688e+26, 6.0268e7);
 
-        private static final double G = 6.67300E-11; // gravitational constant
+        private static final double G = 6.67300E-11;
 
-        private final double mass;    // in kilograms
-        private final double radius;  // in meters
+        private final double mass;
+        private final double radius;
 
         Planet(double mass, double radius) {
             this.mass   = mass;
@@ -141,7 +87,6 @@ public class Lesson3_FieldsMethodsConstructors {
         public double getMass()   { return mass;   }
         public double getRadius() { return radius; }
 
-        // Surface gravity of this planet
         public double surfaceGravity() {
             return G * mass / (radius * radius);
         }
@@ -152,10 +97,6 @@ public class Lesson3_FieldsMethodsConstructors {
         }
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 4: Card Suit (simple single-field enum)
-    // --------------------------------------------------------
     enum Suit {
         HEARTS("♥", "Red"),
         DIAMONDS("♦", "Red"),
@@ -183,13 +124,10 @@ public class Lesson3_FieldsMethodsConstructors {
 
     public static void main(String[] args) {
 
-        // --------------------------------------------------------
-        // Using HttpStatus
-        // --------------------------------------------------------
         System.out.println("=== HTTP Status Codes ===");
 
         HttpStatus status = HttpStatus.NOT_FOUND;
-        System.out.println("Status  : " + status);             // uses toString()
+        System.out.println("Status  : " + status);
         System.out.println("Code    : " + status.getCode());
         System.out.println("Reason  : " + status.getReason());
         System.out.println("Error?  : " + status.isError());
@@ -201,7 +139,6 @@ public class Lesson3_FieldsMethodsConstructors {
                 s, s.isSuccess(), s.isError());
         }
 
-        // Static lookup
         System.out.println("\nLookup by code:");
         int[] codesToCheck = {200, 201, 404, 500};
         for (int code : codesToCheck) {
@@ -209,17 +146,12 @@ public class Lesson3_FieldsMethodsConstructors {
             System.out.println("  " + code + " → " + found);
         }
 
-        // Safe lookup with try/catch
         try {
             HttpStatus.fromCode(999);
         } catch (IllegalArgumentException e) {
             System.out.println("  Caught: " + e.getMessage());
         }
 
-
-        // --------------------------------------------------------
-        // Using Coin
-        // --------------------------------------------------------
         System.out.println("\n=== Coins ===");
 
         for (Coin coin : Coin.values()) {
@@ -227,7 +159,6 @@ public class Lesson3_FieldsMethodsConstructors {
                 coin, coin.getCents(), coin.toDollars(), coin.valueOf(7));
         }
 
-        // Make change for 87 cents
         System.out.println("\nMaking change for 87 cents:");
         int remaining = 87;
         Coin[] coinOrder = {Coin.HALF_DOLLAR, Coin.QUARTER, Coin.DIME, Coin.NICKEL, Coin.PENNY};
@@ -239,10 +170,6 @@ public class Lesson3_FieldsMethodsConstructors {
             }
         }
 
-
-        // --------------------------------------------------------
-        // Using Planet
-        // --------------------------------------------------------
         System.out.println("\n=== Planets (Weight on each planet) ===");
 
         double earthWeight = 75.0; // kg
@@ -254,10 +181,6 @@ public class Lesson3_FieldsMethodsConstructors {
                 planet, planet.surfaceWeight(earthMass));
         }
 
-
-        // --------------------------------------------------------
-        // Using Suit
-        // --------------------------------------------------------
         System.out.println("\n=== Card Suits ===");
 
         for (Suit suit : Suit.values()) {
@@ -276,18 +199,3 @@ public class Lesson3_FieldsMethodsConstructors {
         System.out.println("\nLesson 3 Complete!");
     }
 }
-
-// ============================================================
-//  SUMMARY
-// ============================================================
-//  - Enums can have fields, methods, and constructors
-//  - Constructor is always private (Java enforces this)
-//  - Fields should be final for immutability
-//  - toString() can be overridden for nicer output
-//  - Static methods (like fromCode()) allow reverse lookup
-//  - Each constant is a fully initialized object at class load time
-//
-//  COMPILE & RUN:
-//    javac Lesson3_FieldsMethodsConstructors.java
-//    java  Lesson3_FieldsMethodsConstructors
-// ============================================================

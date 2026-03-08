@@ -1,18 +1,3 @@
-// ============================================================
-//  CAPSTONE PROJECT — Coffee Shop Order System
-// ============================================================
-//  This project uses ALL 10 lessons in one real program:
-//
-//  L1  + L3  → Size, Drink        — basic enum with fields
-//  L4        → Extra               — abstract method per constant
-//  L5        → Discountable        — enum implementing interface
-//  L9        → Discount            — strategy pattern
-//  L10       → OrderStatus         — state machine
-//  L8        → CafeConfig          — singleton
-//  L6        → EnumSet<Extra>       — set of extras per order
-//  L7        → EnumMap<Day, Double> — weekly sales tracking
-// ============================================================
-
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.ArrayList;
@@ -20,7 +5,6 @@ import java.util.List;
 
 public class CoffeeShopSystem {
 
-    // ── L1 + L3: Basic enum with fields ──────────────────────
     enum Size {
         SMALL("S", 0.00), MEDIUM("M", 0.50), LARGE("L", 1.00);
         final String label;
@@ -28,7 +12,6 @@ public class CoffeeShopSystem {
         Size(String label, double extra) { this.label = label; this.extra = extra; }
     }
 
-    // ── L3: Fields + methods ──────────────────────────────────
     enum Drink {
         ESPRESSO  ("Espresso",    2.50),
         LATTE     ("Latte",       3.75),
@@ -44,7 +27,6 @@ public class CoffeeShopSystem {
         public double price(Size s) { return base + s.extra; }
     }
 
-    // ── L4: Abstract method — each extra describes itself ─────
     enum Extra {
         SHOT(0.80) {
             @Override public String describe() { return "Extra espresso shot"; }
@@ -64,14 +46,12 @@ public class CoffeeShopSystem {
         public abstract String describe();
     }
 
-    // ── L5: Interface ─────────────────────────────────────────
     interface Discountable {
         double apply(double price);
         String label();
         default double savings(double price) { return price - apply(price); }
     }
 
-    // ── L9: Strategy pattern — discount algorithms ────────────
     enum Discount implements Discountable {
         NONE {
             @Override public double apply(double p) { return p;        }
@@ -87,7 +67,6 @@ public class CoffeeShopSystem {
         };
     }
 
-    // ── L10: State machine — order lifecycle ──────────────────
     enum OrderStatus {
         PENDING {
             @Override public OrderStatus next()  { return PREPARING;            }
@@ -110,7 +89,6 @@ public class CoffeeShopSystem {
         public abstract String      label();
     }
 
-    // ── L8: Singleton — one global cafe config ────────────────
     enum CafeConfig {
         INSTANCE;
 
@@ -124,17 +102,15 @@ public class CoffeeShopSystem {
         public void   recordOrder()    { ordersToday++;      }
     }
 
-    // ── L7: EnumMap key ───────────────────────────────────────
     enum DayOfWeek { MON, TUE, WED, THU, FRI, SAT, SUN }
 
-    // ── Order class — ties all enums together ─────────────────
     static class Order {
         final String         id;
         final Drink          drink;
         final Size           size;
-        final EnumSet<Extra> extras;   // L6: EnumSet
-        final Discount       discount; // L9: Strategy
-        OrderStatus          status = OrderStatus.PENDING; // L10: State machine
+        final EnumSet<Extra> extras;
+        final Discount       discount;
+        OrderStatus          status = OrderStatus.PENDING;
 
         Order(String id, Drink drink, Size size,
               EnumSet<Extra> extras, Discount discount) {
@@ -143,7 +119,7 @@ public class CoffeeShopSystem {
             this.size     = size;
             this.extras   = extras;
             this.discount = discount;
-            CafeConfig.INSTANCE.recordOrder(); // L8: Singleton
+            CafeConfig.INSTANCE.recordOrder();
         }
 
         double subtotal() {
@@ -203,11 +179,9 @@ public class CoffeeShopSystem {
             EnumSet.of(Extra.OAT_MILK),
             Discount.NONE);
 
-        // Print receipts
         List<Order> orders = List.of(o1, o2, o3, o4);
         for (Order order : orders) order.printReceipt();
 
-        // Track order through state machine (L10)
         System.out.println("\n=== Order #001 Progress (State Machine) ===");
         Order tracked = o1;
         for (int i = 0; i < 4; i++) {
@@ -215,7 +189,6 @@ public class CoffeeShopSystem {
             tracked.advance();
         }
 
-        // Weekly sales using EnumMap (L7)
         EnumMap<DayOfWeek, Double> weeklySales = new EnumMap<>(DayOfWeek.class);
         weeklySales.put(DayOfWeek.MON, 342.50);
         weeklySales.put(DayOfWeek.TUE, 287.00);
@@ -233,14 +206,12 @@ public class CoffeeShopSystem {
         }
         System.out.printf("  %-4s: $%6.2f%n", "TOTAL", weekTotal);
 
-        // Today's extras using EnumSet (L6)
         EnumSet<Extra> popularToday   = EnumSet.of(Extra.OAT_MILK, Extra.SYRUP, Extra.SHOT);
         EnumSet<Extra> unpopularToday = EnumSet.complementOf(popularToday);
         System.out.println("\n=== Today's Extras (EnumSet) ===");
         System.out.println("  Popular   : " + popularToday);
         System.out.println("  Unpopular : " + unpopularToday);
 
-        // Daily summary using Singleton (L8)
         System.out.println("\n=== Daily Summary (Singleton) ===");
         System.out.println("  Cafe    : " + CafeConfig.INSTANCE.getCafeName());
         System.out.println("  Orders  : " + CafeConfig.INSTANCE.getOrdersToday());

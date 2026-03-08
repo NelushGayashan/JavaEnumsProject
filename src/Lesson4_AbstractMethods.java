@@ -1,49 +1,5 @@
-// ============================================================
-//  LESSON 4 — ABSTRACT METHODS (Per-Constant Behavior)
-// ============================================================
-//
-//  THE PROBLEM WITH SWITCH STATEMENTS:
-//  ------------------------------------
-//  In Lesson 3, all constants shared the SAME methods.
-//  But what if each constant needs DIFFERENT behavior?
-//
-//  A beginner might write a switch everywhere:
-//
-//    switch (operation) {
-//        case ADD:      return x + y;
-//        case SUBTRACT: return x - y;
-//        case MULTIPLY: return x * y;
-//    }
-//
-//  Problems with this approach:
-//    ❌ You repeat this switch in EVERY place you need it
-//    ❌ If you add a new constant, you must update ALL switches
-//    ❌ Easy to forget a case (the compiler won't always warn you)
-//    ❌ Code gets long and messy
-//
-//  THE SOLUTION — ABSTRACT METHODS:
-//  ---------------------------------
-//  Declare an abstract method in the enum.
-//  Each constant provides its OWN implementation.
-//  The behavior travels WITH the constant — no switch needed!
-//
-//    enum Operation {
-//        ADD { public double apply(double x, double y) { return x + y; } },
-//        ...;
-//        public abstract double apply(double x, double y);
-//    }
-//
-//    // Anywhere in your code — just call it:
-//    result = operation.apply(x, y);  // no switch needed!
-//
-// ============================================================
-
 public class Lesson4_AbstractMethods {
 
-    // --------------------------------------------------------
-    // EXAMPLE 1: Math Operations
-    // Each constant implements its own apply() method.
-    // --------------------------------------------------------
     enum Operation {
         ADD("+") {
             @Override
@@ -89,8 +45,6 @@ public class Lesson4_AbstractMethods {
             this.symbol = symbol;
         }
 
-        // This forces EVERY constant to provide an implementation.
-        // If a constant doesn't implement this → COMPILE ERROR.
         public abstract double apply(double x, double y);
 
         @Override
@@ -99,11 +53,6 @@ public class Lesson4_AbstractMethods {
         }
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 2: Shipping Speed
-    // Each shipping option has different costs and delivery times.
-    // --------------------------------------------------------
     enum ShippingSpeed {
 
         STANDARD {
@@ -127,12 +76,10 @@ public class Lesson4_AbstractMethods {
             @Override public String description()  { return "Same-Day Delivery"; }
         };
 
-        // Three abstract methods — each constant must implement all of them
         public abstract int    deliveryDays();
         public abstract double cost();
         public abstract String description();
 
-        // Non-abstract method shared by all constants
         public String eta() {
             int days = deliveryDays();
             if (days == 0) return "Today!";
@@ -141,18 +88,12 @@ public class Lesson4_AbstractMethods {
         }
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 3: Button Actions (UI event handling)
-    // Each action knows how to execute itself.
-    // --------------------------------------------------------
     enum ButtonAction {
 
         SAVE {
             @Override
             public void execute(String data) {
                 System.out.println("  [SAVE] Saving data: " + data);
-                // Imagine file/database write here
             }
             @Override
             public String label() { return "Save"; }
@@ -169,7 +110,6 @@ public class Lesson4_AbstractMethods {
             @Override
             public void execute(String data) {
                 System.out.println("  [DELETE] Deleting record: " + data);
-                // Imagine database delete here
             }
             @Override
             public String label() { return "Delete"; }
@@ -187,11 +127,6 @@ public class Lesson4_AbstractMethods {
         public abstract String label();
     }
 
-
-    // --------------------------------------------------------
-    // EXAMPLE 4: Comparison Operators
-    // Notice how we avoid a giant switch statement.
-    // --------------------------------------------------------
     enum Comparator {
 
         LESS_THAN("<") {
@@ -232,9 +167,6 @@ public class Lesson4_AbstractMethods {
 
     public static void main(String[] args) {
 
-        // --------------------------------------------------------
-        // Using Operation
-        // --------------------------------------------------------
         System.out.println("=== Math Operations ===");
 
         double x = 10, y = 3;
@@ -250,21 +182,15 @@ public class Lesson4_AbstractMethods {
             }
         }
 
-        // Use a specific operation
         System.out.println("\nSpecific operation:");
         Operation chosen = Operation.MULTIPLY;
         System.out.printf("  %s.apply(6, 7) = %.0f%n", chosen, chosen.apply(6, 7));
 
-        // Demonstrate no switch needed — just call apply()
         System.out.println("\nAll ops on 100 and 4:");
         for (Operation op : Operation.values()) {
             System.out.printf("  100 %s 4 = %.2f%n", op, op.apply(100, 4));
         }
 
-
-        // --------------------------------------------------------
-        // Using ShippingSpeed
-        // --------------------------------------------------------
         System.out.println("\n=== Shipping Options ===");
         System.out.printf("  %-30s  %-8s  %-10s  %s%n", "Option", "Days", "Cost", "ETA");
         System.out.println("  " + "-".repeat(62));
@@ -276,7 +202,6 @@ public class Lesson4_AbstractMethods {
                 speed.eta());
         }
 
-        // Business logic: find cheapest option within N days
         int maxDays = 3;
         System.out.println("\nBest option arriving within " + maxDays + " days:");
         for (ShippingSpeed speed : ShippingSpeed.values()) {
@@ -287,30 +212,20 @@ public class Lesson4_AbstractMethods {
             }
         }
 
-
-        // --------------------------------------------------------
-        // Using ButtonAction
-        // --------------------------------------------------------
         System.out.println("\n=== Button Actions ===");
 
         String record = "User#1042 - John Doe";
 
-        // Simulate different button clicks:
         ButtonAction.SAVE.execute(record);
         ButtonAction.PRINT.execute(record);
         ButtonAction.DELETE.execute(record);
         ButtonAction.CANCEL.execute(record);
 
-        // Build a menu from enum constants (no hardcoding!)
         System.out.println("\nAvailable actions:");
         for (ButtonAction action : ButtonAction.values()) {
             System.out.println("  [" + action.ordinal() + "] " + action.label());
         }
 
-
-        // --------------------------------------------------------
-        // Using Comparator
-        // --------------------------------------------------------
         System.out.println("\n=== Comparators ===");
 
         int a = 5, b = 8;
@@ -322,24 +237,3 @@ public class Lesson4_AbstractMethods {
         System.out.println("\nLesson 4 Complete!");
     }
 }
-
-// ============================================================
-//  SUMMARY
-// ============================================================
-//  - Declare abstract method in the enum body
-//  - Each constant provides its own { } implementation block
-//  - The compiler forces every constant to implement all abstract methods
-//  - No switch/if-else chains needed — just call the method
-//  - Combine with fields (Lesson 3) for maximum power
-//
-//  PATTERN TO REMEMBER:
-//    CONSTANT_NAME {
-//        @Override
-//        public ReturnType methodName(params) { ... }
-//    };
-//    public abstract ReturnType methodName(params);  // declared below constants
-//
-//  COMPILE & RUN:
-//    javac Lesson4_AbstractMethods.java
-//    java  Lesson4_AbstractMethods
-// ============================================================
