@@ -1,7 +1,59 @@
+// ============================================================
+//  LESSON 9 — STRATEGY PATTERN
+// ============================================================
+//
+//  WHAT IS THE STRATEGY PATTERN?
+//  --------------------------------
+//  Strategy is a design pattern where you define a FAMILY of
+//  algorithms (strategies), put each in its own object, and
+//  make them interchangeable.
+//
+//  The client code doesn't know WHICH algorithm it's using —
+//  it just calls a method and the right algorithm runs.
+//
+//  CLASSIC PROBLEM:
+//  ----------------
+//  You need to sort some data. Sometimes by name, sometimes
+//  by price, sometimes by date. Without the pattern:
+//
+//    if (sortType.equals("name"))  { /* sort by name  */ }
+//    if (sortType.equals("price")) { /* sort by price */ }
+//    if (sortType.equals("date"))  { /* sort by date  */ }
+//
+//  Problems:
+//    ❌ if/else chains grow endlessly
+//    ❌ Adding a new strategy requires modifying existing code
+//    ❌ Logic is scattered
+//
+//  WITH ENUM STRATEGY PATTERN:
+//  ---------------------------
+//    enum SortStrategy {
+//        BY_NAME  { public void sort(List items) { ... } },
+//        BY_PRICE { public void sort(List items) { ... } };
+//        public abstract void sort(List items);
+//    }
+//
+//    SortStrategy strategy = SortStrategy.BY_PRICE;
+//    strategy.sort(items);  // clean, no conditionals!
+//
+//  WHY ENUM FOR STRATEGY?
+//  ----------------------
+//  ✅ Fixed, known set of strategies (perfect for enum)
+//  ✅ Each constant is a self-contained strategy object
+//  ✅ Type-safe — only valid strategies allowed
+//  ✅ Strategies are named constants — readable and documented
+//  ✅ No instantiation needed — constants are ready to use
+//
+// ============================================================
+
 import java.util.Arrays;
 
 public class Lesson9_StrategyPattern {
 
+    // --------------------------------------------------------
+    // EXAMPLE 1: Discount Strategy
+    // Different discount rules for different customer types.
+    // --------------------------------------------------------
     enum DiscountStrategy {
 
         NONE {
@@ -57,11 +109,16 @@ public class Lesson9_StrategyPattern {
         public abstract String description();
         public abstract int    percentOff();
 
+        // Non-abstract: savings amount (shared logic for all)
         public double savings(double price) {
             return price - apply(price);
         }
     }
 
+
+    // --------------------------------------------------------
+    // EXAMPLE 2: Sorting Strategy
+    // --------------------------------------------------------
     enum SortStrategy {
 
         BUBBLE {
@@ -121,6 +178,9 @@ public class Lesson9_StrategyPattern {
     }
 
 
+    // --------------------------------------------------------
+    // EXAMPLE 3: Password Validation Strategy
+    // --------------------------------------------------------
     enum PasswordPolicy {
 
         BASIC {
@@ -167,6 +227,9 @@ public class Lesson9_StrategyPattern {
     }
 
 
+    // --------------------------------------------------------
+    // EXAMPLE 4: Shipping Cost Strategy
+    // --------------------------------------------------------
     enum ShippingStrategy {
 
         STANDARD {
@@ -199,12 +262,15 @@ public class Lesson9_StrategyPattern {
         };
 
         public abstract double calculate(double weight, double distance);
-        public abstract String label();
+        public abstract String label();  // ← renamed from name()
     }
 
 
     public static void main(String[] args) {
 
+        // --------------------------------------------------------
+        // Discount Strategy
+        // --------------------------------------------------------
         System.out.println("=== Discount Strategies ===");
 
         double originalPrice = 150.00;
@@ -220,6 +286,7 @@ public class Lesson9_StrategyPattern {
                 strategy.percentOff());
         }
 
+        // Simulate runtime strategy selection
         System.out.println("\nRuntime strategy selection:");
         String userType = "VIP";
         DiscountStrategy chosen = DiscountStrategy.valueOf(userType);
@@ -227,6 +294,9 @@ public class Lesson9_StrategyPattern {
             userType, chosen.description(), chosen.apply(originalPrice));
 
 
+        // --------------------------------------------------------
+        // Sorting Strategy
+        // --------------------------------------------------------
         System.out.println("\n=== Sorting Strategies ===");
 
         int[] original = {64, 34, 25, 12, 22, 11, 90, 47, 3, 78};
@@ -239,13 +309,14 @@ public class Lesson9_StrategyPattern {
             System.out.printf("  %-45s %s%n", strategy.description(), Arrays.toString(arr));
         }
 
+        // Use a strategy based on data size
         System.out.println("\nAuto-select strategy by data size:");
         int[] smallData = {5, 2, 8, 1, 9};
         int[] largeData = new int[100];
         for (int i = 0; i < largeData.length; i++) largeData[i] = 100 - i;
 
-        SortStrategy smallStrategy = SortStrategy.INSERTION;
-        SortStrategy largeStrategy = SortStrategy.BUILT_IN;
+        SortStrategy smallStrategy = SortStrategy.INSERTION; // fast for small arrays
+        SortStrategy largeStrategy = SortStrategy.BUILT_IN;  // fast for large arrays
 
         smallStrategy.sort(smallData);
         largeStrategy.sort(largeData);
@@ -254,6 +325,9 @@ public class Lesson9_StrategyPattern {
             + Arrays.toString(Arrays.copyOf(largeData, 10)) + "...");
 
 
+        // --------------------------------------------------------
+        // Password Validation Strategy
+        // --------------------------------------------------------
         System.out.println("\n=== Password Policies ===");
 
         String[] passwords = {"abc", "password", "Password1", "SecurePass1!", "MyStr0ng!Pass"};
@@ -279,19 +353,23 @@ public class Lesson9_StrategyPattern {
         }
 
 
+        // --------------------------------------------------------
+        // Shipping Strategy
+        // --------------------------------------------------------
         System.out.println("\n=== Shipping Cost Calculator ===");
 
-        double weight   = 2.5;
-        double distance = 300;
+        double weight   = 2.5;  // kg
+        double distance = 300;  // km
         System.out.printf("Package: %.1f kg, Distance: %.0f km%n%n", weight, distance);
 
         System.out.printf("  %-20s  %s%n", "Method", "Cost");
         System.out.println("  " + "-".repeat(35));
         for (ShippingStrategy strategy : ShippingStrategy.values()) {
             double cost = strategy.calculate(weight, distance);
-            System.out.printf("  %-20s  $%.2f%n", strategy.name(), cost);
+            System.out.printf("  %-20s  $%.2f%n", strategy.label(), cost);
         }
 
+        // Find cheapest option
         ShippingStrategy cheapest = ShippingStrategy.STANDARD;
         double lowestCost = cheapest.calculate(weight, distance);
         for (ShippingStrategy s : ShippingStrategy.values()) {
@@ -301,9 +379,28 @@ public class Lesson9_StrategyPattern {
                 cheapest = s;
             }
         }
-        System.out.printf("\nCheapest option: %s ($%.2f)%n", cheapest.name(), lowestCost);
+        System.out.printf("\nCheapest option: %s ($%.2f)%n", cheapest.label(), lowestCost);
 
         System.out.println("\nLesson 9 Complete!");
     }
 }
 
+// ============================================================
+//  SUMMARY
+// ============================================================
+//  Strategy Pattern = different algorithms behind a common interface.
+//
+//  With Enum Strategy:
+//    - Each constant IS a strategy
+//    - Abstract method defines the algorithm "slot"
+//    - Each constant fills in its own algorithm
+//    - Select strategy at runtime using valueOf() or logic
+//    - No if/else chains anywhere
+//
+//  Best for: discounts, sorting, validation, pricing, formatting,
+//            compression, encryption, routing, rendering
+//
+//  COMPILE & RUN:
+//    javac Lesson9_StrategyPattern.java
+//    java  Lesson9_StrategyPattern
+// ============================================================

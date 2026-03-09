@@ -1,3 +1,40 @@
+// ============================================================
+//  LESSON 7 — EnumMap
+// ============================================================
+//
+//  WHAT IS EnumMap?
+//  ----------------
+//  EnumMap is a specialized Map implementation where the KEYS
+//  must be enum constants. Values can be any type.
+//
+//  WHY NOT JUST USE HashMap?
+//  -------------------------
+//  You COULD use HashMap<Day, String> — it works fine.
+//  But EnumMap is:
+//    ✅ Much FASTER       — uses a simple array internally (O(1) by ordinal)
+//    ✅ Less MEMORY       — no hashing, no buckets, just a plain array
+//    ✅ Always ORDERED    — iteration always follows enum declaration order
+//    ✅ More READABLE     — makes intent clear ("keys are always enum constants")
+//    ✅ No null keys      — prevents accidental null key bugs
+//
+//  HOW IT WORKS INTERNALLY:
+//  ------------------------
+//  EnumMap is basically just an Object[] array.
+//    Day.MON.ordinal() = 0  →  array[0] = value for MON
+//    Day.TUE.ordinal() = 1  →  array[1] = value for TUE
+//  get(Day.MON) just does: return array[Day.MON.ordinal()]
+//  That's why it's so fast — no hashing at all!
+//
+//  WHEN TO USE EnumMap:
+//  --------------------
+//  Whenever your Map keys are enum constants. Classic uses:
+//    - Map each day to a task/event
+//    - Map each category to a count
+//    - Map each status to a handler
+//    - Map each priority to a list of items
+//
+// ============================================================
+
 import java.util.EnumMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +55,26 @@ public class Lesson7_EnumMap {
         // --------------------------------------------------------
         System.out.println("=== PART 1: Basic Operations ===");
 
+        // Create — must pass the enum class
         EnumMap<Day, String> schedule = new EnumMap<>(Day.class);
 
+        // put(key, value)
         schedule.put(Day.MON, "Team standup at 9am");
         schedule.put(Day.WED, "Sprint review at 2pm");
         schedule.put(Day.FRI, "Retrospective at 4pm");
         schedule.put(Day.SAT, "Rest day");
         schedule.put(Day.SUN, "Rest day");
+
+        // get(key)
         System.out.println("Monday   : " + schedule.get(Day.MON));
         System.out.println("Wednesday: " + schedule.get(Day.WED));
         System.out.println("Tuesday  : " + schedule.get(Day.TUE)); // null — not in map
+
+        // size, isEmpty
         System.out.println("Size     : " + schedule.size());
         System.out.println("Empty?   : " + schedule.isEmpty());
+
+        // containsKey, containsValue
         System.out.println("Has MON? : " + schedule.containsKey(Day.MON));
         System.out.println("Has TUE? : " + schedule.containsKey(Day.TUE));
 
@@ -39,6 +84,8 @@ public class Lesson7_EnumMap {
         // --------------------------------------------------------
         System.out.println("\n=== PART 2: getOrDefault ===");
 
+        // getOrDefault returns a fallback if the key isn't present
+        // Much cleaner than checking for null
         String tuesday  = schedule.getOrDefault(Day.TUE, "No meeting scheduled");
         String thursday = schedule.getOrDefault(Day.THU, "No meeting scheduled");
         String monday   = schedule.getOrDefault(Day.MON, "No meeting scheduled");
@@ -53,12 +100,13 @@ public class Lesson7_EnumMap {
         // --------------------------------------------------------
         System.out.println("\n=== PART 3: putIfAbsent ===");
 
-        schedule.putIfAbsent(Day.TUE, "Focus time");
-        schedule.putIfAbsent(Day.MON, "CHANGED");
+        // putIfAbsent — only inserts if key not already present
+        schedule.putIfAbsent(Day.TUE, "Focus time");   // TUE not present → adds it
+        schedule.putIfAbsent(Day.MON, "CHANGED");       // MON already present → ignores
 
         System.out.println("After putIfAbsent:");
-        System.out.println("  MON: " + schedule.get(Day.MON));
-        System.out.println("  TUE: " + schedule.get(Day.TUE));
+        System.out.println("  MON: " + schedule.get(Day.MON)); // unchanged
+        System.out.println("  TUE: " + schedule.get(Day.TUE)); // now set
 
 
         // --------------------------------------------------------
@@ -99,11 +147,13 @@ public class Lesson7_EnumMap {
         // --------------------------------------------------------
         System.out.println("\n=== PART 6: Counting per Category ===");
 
+        // Initialize all priorities to 0
         EnumMap<Priority, Integer> taskCount = new EnumMap<>(Priority.class);
         for (Priority p : Priority.values()) {
             taskCount.put(p, 0);
         }
 
+        // Simulate incoming tasks
         Priority[] tasks = {
             Priority.HIGH, Priority.LOW, Priority.HIGH,
             Priority.CRITICAL, Priority.MEDIUM, Priority.HIGH,
@@ -129,10 +179,12 @@ public class Lesson7_EnumMap {
 
         EnumMap<Priority, List<String>> tasksByPriority = new EnumMap<>(Priority.class);
 
+        // Initialize all lists
         for (Priority p : Priority.values()) {
             tasksByPriority.put(p, new ArrayList<>());
         }
 
+        // Add tasks
         tasksByPriority.get(Priority.CRITICAL).add("Fix login bug");
         tasksByPriority.get(Priority.CRITICAL).add("Security patch");
         tasksByPriority.get(Priority.HIGH).add("Update user profile page");
@@ -141,6 +193,7 @@ public class Lesson7_EnumMap {
         tasksByPriority.get(Priority.MEDIUM).add("Improve search");
         tasksByPriority.get(Priority.LOW).add("Update README");
 
+        // Print by priority
         for (Map.Entry<Priority, List<String>> entry : tasksByPriority.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 System.out.println("[" + entry.getKey() + "]");
@@ -218,3 +271,25 @@ public class Lesson7_EnumMap {
         System.out.println("\nLesson 7 Complete!");
     }
 }
+
+// ============================================================
+//  SUMMARY
+// ============================================================
+//  new EnumMap<>(MyEnum.class)       → create empty map
+//  map.put(key, value)               → insert/update
+//  map.get(key)                      → retrieve (null if absent)
+//  map.getOrDefault(key, fallback)   → safe retrieve
+//  map.putIfAbsent(key, value)       → only insert if absent
+//  map.containsKey(key)              → membership check
+//  map.remove(key)                   → delete entry
+//  map.entrySet()                    → iterate key-value pairs
+//  map.keySet()                      → iterate keys
+//  map.values()                      → iterate values
+//
+//  ALWAYS prefer EnumMap over HashMap when keys are enums.
+//  Iteration ALWAYS follows enum declaration order.
+//
+//  COMPILE & RUN:
+//    javac Lesson7_EnumMap.java
+//    java  Lesson7_EnumMap
+// ============================================================

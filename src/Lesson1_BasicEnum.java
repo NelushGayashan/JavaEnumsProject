@@ -1,8 +1,41 @@
 // ============================================================
 //  LESSON 1 — BASIC ENUM
 // ============================================================
+//
+//  WHAT IS AN ENUM?
+//  ----------------
+//  An enum (short for "enumeration") is a special Java type
+//  that represents a fixed set of named constants.
+//
+//  Think of real-world things that only have a limited number
+//  of possible values:
+//    - Days of the week   → MONDAY, TUESDAY ... SUNDAY
+//    - Compass directions → NORTH, SOUTH, EAST, WEST
+//    - Seasons            → SPRING, SUMMER, AUTUMN, WINTER
+//    - Traffic lights     → RED, YELLOW, GREEN
+//
+//  WHY USE ENUMS INSTEAD OF STRINGS OR INTS?
+//  ------------------------------------------
+//  Without enums, you might write:
+//    String direction = "NROTH";   // typo → compiles fine, fails at runtime
+//    int    day       = 8;         // invalid day → no error until something breaks
+//
+//  With enums:
+//    Direction dir = Direction.NROTH;  // typo → COMPILE ERROR immediately
+//    Day d = Day.FUNDAY;               // invalid → COMPILE ERROR immediately
+//
+//  Enums give you:
+//    ✅ Type safety  (only valid values allowed)
+//    ✅ Readability  (NORTH is clearer than 0)
+//    ✅ IDE support  (auto-complete, refactoring)
+//    ✅ Switch support
+//
+// ============================================================
 
 public class Lesson1_BasicEnum {
+
+    // --- Declaring enums ---
+    // Convention: enum name is PascalCase, constants are ALL_CAPS
 
     enum Direction {
         NORTH, SOUTH, EAST, WEST
@@ -31,14 +64,16 @@ public class Lesson1_BasicEnum {
         Season    season = Season.SUMMER;
         Day       day    = Day.FRIDAY;
 
-        System.out.println("Direction : " + dir);
-        System.out.println("Season    : " + season);
-        System.out.println("Day       : " + day);
+        System.out.println("Direction : " + dir);    // NORTH
+        System.out.println("Season    : " + season); // SUMMER
+        System.out.println("Day       : " + day);    // FRIDAY
 
 
         // --------------------------------------------------------
         // PART 2: Comparing enum values
         // --------------------------------------------------------
+        // Always use == to compare enums (NOT .equals())
+        // == works because each enum constant is a UNIQUE SINGLETON object
         System.out.println("\n=== PART 2: Comparing Enum Values ===");
 
         if (dir == Direction.NORTH) {
@@ -99,6 +134,7 @@ public class Lesson1_BasicEnum {
         // --------------------------------------------------------
         // PART 5: switch expression (Java 14+ modern style)
         // --------------------------------------------------------
+        // More concise, no break needed, can return a value
         System.out.println("\n=== PART 5: switch expression (modern) ===");
 
         String dayType = switch (today) {
@@ -109,6 +145,7 @@ public class Lesson1_BasicEnum {
         };
         System.out.println(today + " is: " + dayType);
 
+        // You can also run code inside the arrow:
         switch (today) {
             case SATURDAY, SUNDAY -> System.out.println("No alarm needed today!");
             default               -> System.out.println("Set your alarm.");
@@ -136,17 +173,33 @@ public class Lesson1_BasicEnum {
         System.out.println("\n=== PART 7: Enum vs String vs Int ===");
 
         // BAD — using a String
-        String badDirection = "NROTH";
-        if (badDirection.equals("NORTH")) {
+        String badDirection = "NROTH"; // Typo — Java won't warn you
+        if (badDirection.equals("NORTH")) { // This check will FAIL silently
             System.out.println("Going north (this won't print due to typo)");
         }
 
-        int badDay = 9;
-        System.out.println("Bad day number: " + badDay);
+        // BAD — using an int
+        int badDay = 9; // 9 is not a valid day — no error!
+        System.out.println("Bad day number: " + badDay); // prints 9, meaninglessly
 
-        Direction goodDir = Direction.NORTH;
+        // GOOD — using enums
+        Direction goodDir = Direction.NORTH; // typo = compile error
         System.out.println("Good direction: " + goodDir);
 
         System.out.println("\nLesson 1 Complete!");
     }
 }
+
+// ============================================================
+//  SUMMARY
+// ============================================================
+//  - enum declares a type with a fixed set of named constants
+//  - Use == for comparison (not .equals())
+//  - Enums work in if/else and switch statements
+//  - Enums catch typos and invalid values at compile time
+//  - Convention: enum names PascalCase, constants ALL_CAPS
+//
+//  COMPILE & RUN:
+//    javac Lesson1_BasicEnum.java
+//    java  Lesson1_BasicEnum
+// ============================================================
